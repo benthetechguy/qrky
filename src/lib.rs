@@ -94,11 +94,3 @@ fn u64_to_be_bytes(buf: &mut [u8], num: u64) {
     buf[6] = (num >> 8) as u8;
     buf[7] = num as u8;
 }
-
-pub fn generate_(len: u64) -> QRCode {
-    QRBuilder::new(len.to_string())
-        .mode(Mode::Numeric)
-        .version(Version::V01)
-        .ecl(ECL::H)
-        .build().unwrap()
-}
