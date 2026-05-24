@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 crc = "3.4.0"
+fast_qr = "0.13.1"
