@@ -6,3 +6,8 @@ edition = "2024"
 [dependencies]
 crc = "3.4.0"
 fast_qr = "0.13.1"
+rqrr = "0.10.1"
+
+[dependencies.nokhwa]
+version = "0.10.11"
+features = ["input-native"]

@@ -1,4 +1,7 @@
 use fast_qr::{QRBuilder, QRCode, ECL, Version, Mode};
+use nokhwa::Camera;
+use nokhwa::pixel_format::LumaFormat;
+use rqrr::PreparedImage;
 
 pub const CRC: crc::Crc<u64> = crc::Crc::<u64>::new(&crc::CRC_64_XZ);
 
@@ -93,4 +96,30 @@ fn u64_to_be_bytes(buf: &mut [u8], num: u64) {
     buf[5] = (num >> 16) as u8;
     buf[6] = (num >> 8) as u8;
     buf[7] = num as u8;
+}
+
+/// Given the bytes of an assumed numeric string, convert it to an integer.
+pub fn numeric_string_bytes_to_int(bytes: &[u8]) -> u64 {
+    let mut num = 0;
+    for &b in bytes {
+        let digit = (b as char).to_digit(10).unwrap() as u64;
+        num = num * 10 + digit;
+    }
+    num
+}
+
+/// Use the desired camera to scan for a QR code, outputting the data in the first one found.
+pub fn scan_qr(camera: &mut Camera, expected_bytes: usize) -> Vec<u8> {
+    loop {
+        let frame = camera.frame().unwrap();
+        let decoded = frame.decode_image::<LumaFormat>().unwrap();
+        let mut prepared = PreparedImage::prepare(decoded);
+        let qr_codes = prepared.detect_grids();
+        if !qr_codes.is_empty() {
+            let mut buf = Vec::with_capacity(expected_bytes);
+            if qr_codes[0].decode_to(&mut buf).is_ok() {
+                return buf;
+            }
+        }
+    }
 }
